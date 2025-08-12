@@ -128,3 +128,53 @@ p {
   align-items: center;
   gap: 5px;
 }
+
+/* Add these styles to the end of src/App.css */
+
+.results-container {
+  width: 90%;
+  max-width: 1200px;
+}
+
+.recommendations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.movie-result-card {
+  background-color: #3a3f4a;
+  border-radius: 10px;
+  overflow: hidden;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform 0.2s ease-in-out;
+}
+
+.movie-result-card:hover {
+  transform: scale(1.05);
+}
+
+.movie-result-card img {
+  width: 100%;
+  height: 270px; /* Adjust height as needed */
+  object-fit: cover;
+}
+
+.movie-result-card h3 {
+  font-size: 1rem;
+  padding: 15px 10px;
+  margin: 0;
+}
+
+.no-poster {
+  width: 100%;
+  height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #20232a;
+  color: #888;
+  font-size: 0.9rem;
+}

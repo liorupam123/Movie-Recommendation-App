@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import PosterMarquee from './PosterMarquee'; // Import the new component
 import './App.css';
 
 const genres = [
@@ -16,7 +17,12 @@ function App() {
   const [error, setError] = useState(null);
 
   const handleFetch = async () => {
-    if (!query.trim()) return;
+    // For genre, if the user hasn't selected a valid genre, don't fetch.
+    if (searchType === 'genre' && !query) {
+        setError("Please select a genre.");
+        return;
+    }
+    if (!query.trim() && searchType !== 'genre') return;
 
     setIsLoading(true);
     setError(null);
@@ -29,7 +35,7 @@ function App() {
       apiUrl = `http://127.0.0.1:5000/actor-movies?name=${encodeURIComponent(query)}`;
     } else if (searchType === 'genre') {
       apiUrl = `http://127.0.0.1:5000/genre-movies?genre=${encodeURIComponent(query)}`;
-    } else if (searchType === 'user') { // NEW: Handle collaborative filtering
+    } else if (searchType === 'user') {
       apiUrl = `http://127.0.0.1:5000/collaborative-recommend?userId=${encodeURIComponent(query)}`;
     }
 
@@ -40,7 +46,7 @@ function App() {
         throw new Error(errorData.error || 'Server error.');
       }
       const data = await response.json();
-      setRecommendations(data.recommendations);
+      setRecommendations(data.recommendations || []);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -83,13 +89,17 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
+        
+        <PosterMarquee /> {/* The animated poster banner */}
+
         <h1>🎬 Movie Recommendation Engine</h1>
+        <p>Discover your next favorite movie!</p>
         
         <div className="search-options">
-          <label><input type="radio" value="movie" checked={searchType === 'movie'} onChange={(e) => setSearchType(e.target.value)} /> By Movie</label>
-          <label><input type="radio" value="actor" checked={searchType === 'actor'} onChange={(e) => setSearchType(e.target.value)} /> By Actor</label>
-          <label><input type="radio" value="genre" checked={searchType === 'genre'} onChange={(e) => setSearchType(e.target.value)} /> By Genre</label>
-          <label><input type="radio" value="user" checked={searchType === 'user'} onChange={(e) => setSearchType(e.target.value)} /> For You (User ID)</label>
+          <label><input type="radio" value="movie" checked={searchType === 'movie'} onChange={(e) => {setQuery(''); setSearchType(e.target.value)}} /> By Movie</label>
+          <label><input type="radio" value="actor" checked={searchType === 'actor'} onChange={(e) => {setQuery(''); setSearchType(e.target.value)}} /> By Actor</label>
+          <label><input type="radio" value="genre" checked={searchType === 'genre'} onChange={(e) => {setQuery(''); setSearchType(e.target.value)}} /> By Genre</label>
+          <label><input type="radio" value="user" checked={searchType === 'user'} onChange={(e) => {setQuery(''); setSearchType(e.target.value)}} /> For You (User ID)</label>
         </div>
 
         <div className="input-container">
@@ -101,12 +111,20 @@ function App() {
 
         <div className="results-container">
           {error && <p className="error-message">{error}</p>}
+          
+          {/* Updated results display with posters */}
           {recommendations.length > 0 && (
-            <div className="recommendations-list">
-              <h2>Results:</h2>
-              <ul>
-                {recommendations.map((item, index) => <li key={index}>{item}</li>)}
-              </ul>
+            <div className="recommendations-grid">
+              {recommendations.map((movie, index) => (
+                <div key={`${movie.title}-${index}`} className="movie-result-card">
+                  {movie.poster_path ? (
+                    <img src={movie.poster_path} alt={movie.title} />
+                  ) : (
+                    <div className="no-poster">No Poster Available</div>
+                  )}
+                  <h3>{movie.title}</h3>
+                </div>
+              ))}
             </div>
           )}
         </div>
